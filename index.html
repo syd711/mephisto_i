@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Mephisto I by syd711</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Mephisto I</h1>
+        <p class="header">Building an internet radio with the Arduino Ethernet</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/syd711/mephisto_i/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/syd711/mephisto_i/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/syd711/mephisto_i">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/syd711">syd711</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a name="motivation" class="anchor" href="#motivation"><span class="octicon octicon-link"></span></a>Motivation</h1>
+
+<p>Reading several articles on several blogs - especially <a href="http://hackaday.com/">hackaday.com</a> - about the Arduino and projects realized with the Arduino
+I thought it would be fun to build an internet radio on my own too. I'm a software developer with only basic knowledge of hardware.
+So I googled a lot of stuff about Arduino tutorials and other radios that have been build with it. There are three pages that helped
+my to design the hardware architecture of the radio:</p>
+
+<ul>
+<li>
+<a href="http://www.tinkernut.com/2010/08/30/how-to-make-a-cheap-wifi-radio/">tinkernut.com</a> - How to make a cheap wifi radio</li>
+<li>
+<a href="http://www.instructables.com/id/Standalone-WiFi-Radio-Control-Panel-Arduino-Power/">this article</a>  about the about an Arduino driven control panel</li>
+<li>
+<a href="http://mightyohm.com/blog/2008/10/building-a-wifi-radio-part-1-introduction/">mightyohm.com</a> - Building a wifi radio</li>
+</ul><p><img src="http://www.paderpoint.net/radio/tn_2013-05-27%2018.57.20.jpg" alt="finished1"><img src="http://www.paderpoint.net/radio/tn_2013-05-27%2018.59.24.jpg" alt="display"></p>
+
+<h1>
+<a name="hardware-requirements" class="anchor" href="#hardware-requirements"><span class="octicon octicon-link"></span></a>Hardware Requirements</h1>
+
+<p>Here is the list of components I used building the radio:</p>
+
+<ul>
+<li>Arduino Ethernet</li>
+<li>Asus WL520-GU wireless router</li>
+<li>USB audio card</li>
+<li>ethernet cable</li>
+<li>Logitech LS 20 speaker (as amplifier)</li>
+<li>Visaton FRS 8 speaker</li>
+<li>20x4 blue LCD </li>
+<li>2x push buttons for next/previous station selection</li>
+<li>Stereo input selector</li>
+<li>iPod audio cable</li>
+<li>some resistors and a relay</li>
+<li>a white rack</li>
+<li>some 5mm wooden panels</li>
+<li>iPod dock adapter</li>
+<li>cinch and 3,5mm connectors</li>
+</ul><h1>
+<a name="hacking-the-asus-wl520-gu-router" class="anchor" href="#hacking-the-asus-wl520-gu-router"><span class="octicon octicon-link"></span></a>Hacking the Asus WL520-GU router</h1>
+
+<p>There are different descriptions how to hack this router to install a mpd server for mp3 playback on it. I already mentioned the most important
+ones at the beginning of this article. The basic idea is to install <strong>openWRT</strong> on the router with all the advantages of a Linux system.
+Unfortunatly none of the descriptions worked for me. I <strong>really really really(!!!)</strong> spent a lot of time to get openWRT working but was never able to establish a wireless
+connection. I followed the instructions of tinkernut and some other. Finally, I switched to <a href="http://tomatousb.org/">tomato USB</a> and
+ found <a href="http://www.techenclave.com/community/threads/setting-up-a-mp3-player-and-media-streamer-on-a-cheap-router.134452/">this thread</a>
+that helped me to get the router online and running. The original idea included to have an http server with PHP running on the router to support 
+a web interface. But I soon realized that the router does not have the necessary performance to support this kind of feature.</p>
+
+<h1>
+<a name="building-the-hardware-it-started-with-a-blink" class="anchor" href="#building-the-hardware-it-started-with-a-blink"><span class="octicon octicon-link"></span></a>Building the hardware: It started with a blink...</h1>
+
+<p>Besides the router and the Arduino, I wasn't sure which components I need to build the radio, so I bought an <strong>Arduino Ethernet Starterkit</strong>.
+There are a lot of good Arduinio tutorials on youtube, so I started with the Blink tutorial:</p>
+
+<p><img src="http://www.paderpoint.net/radio/tn_IMG_6566.JPG" alt="A simple Blink prototype"></p>
+
+<p>The next step was to connect the LCD with the Arduino. Thanks to <a href="http://learn.adafruit.com/character-lcds/wiring-a-character-lcd">Laday Ada</a> that was not problem.
+The router was already running the mpd server, so it didn't took me long to find some tutorial about how to establish a telnet connection and executing some remote
+commands to read the mpd status and update the server using mpc commands. Displaying the current song information on the LCD was easy thanks to the Arduino libraries for that.
+But of course, I ran into some problems too:</p>
+
+<ul>
+<li>I wasn't able to display <strong>German Umlauts</strong> properly. I tried to set the system encoding to UTF-8 but that doesn't seem to work. Well, I did not bother me that much, so I left the problem unsolved. </li>
+<li>
+<strong>Scrolling</strong> the actual song information if the character length is &gt; 20: There are some scroll functions coming with the LCD library, but since I only wanted to scroll one line of the four rows
+I implemened the scrolling myself</li>
+<li>
+<strong>Button debouncing</strong>: Well, there are so much threads about that, so I'm gonna skip the details here ;)</li>
+</ul><p><img src="http://www.paderpoint.net/radio/tn_IMG_6567.JPG" alt="Wiring the LCD display"></p>
+
+<h1>
+<a name="building-the-hardware-wiring-everything-together" class="anchor" href="#building-the-hardware-wiring-everything-together"><span class="octicon octicon-link"></span></a>Building the hardware: Wiring everything together...</h1>
+
+<p>Ok, when you look on the photos and a big <strong><em>ARRGGH!</em></strong> is coming out your mouth just remember: this was my first hack and I learned a lot about circuit board wiring through that. So yes: it's <strong>ugly</strong>
+but it works :-)</p>
+
+<p><img src="http://www.paderpoint.net/radio/tn_IMG_6571.JPG" alt="A lot of wires"></p>
+
+<p>The circuit board contains cables for connecting the LCD and the two push buttons for the station selection. The <strong>relay is used as on/off switch for the amplifier</strong>: the front poti volume control
+has an on/off switch. If the radio is switched on, the router is powered. The arduino is powered by the USB port of the router, so the Arduino boots up next. When the init() method of the 
+Arduino is called, the relay is switched and will power the <strong>amp of the former Logitech speakers</strong>. The second switch on the front allows to choose a different input source. I wired an <strong>iPod dock</strong>
+on the top of the case and a cinch connection on the back to connect alternative music sources. The display does not reflect selector changes and only shows the radio information, even if an iPod is connected.</p>
+
+<p><img src="http://www.paderpoint.net/radio/tn_IMG_6580.JPG" alt="what a mess"></p>
+
+<h1>
+<a name="building-the-box-almost-ready" class="anchor" href="#building-the-box-almost-ready"><span class="octicon octicon-link"></span></a>Building the box: Almost ready...</h1>
+
+<p>After hacking the router, finishing the circuit board and programming the Arduino I thought I only have to put everything together....so I thought. But I only reached the famous last 20 percent.
+I wanted to put all hardware into a small rack I bought on Amazon, and close the front and back of the rack with 5mm wooden panels. </p>
+
+<p><img src="http://www.paderpoint.net/radio/tn_IMG_6578.JPG" alt="r1"><img src="http://www.paderpoint.net/radio/tn_IMG_6579.JPG" alt="r1"></p>
+
+<p>Installing the speakers and the buttons was easy, also to screw the LCD on the front panel. But then I realized that there is not enough space left to put the router into the rack too.
+So I had to re-wire the LCD to save some space, had some loose connections after installing the front panel and also detected some minor software bugs (after!) closing the rack.
+But after all, the radio runs smoothly now and even if it took me a lot of time and nerves, I'm happy about all the stuff I've learned building this radio.</p>
+
+<p><img src="http://www.paderpoint.net/radio/tn_IMG_6581.JPG" alt="r1"><img src="http://www.paderpoint.net/radio/tn_IMG_6582.JPG" alt="r1"></p>
+
+<h1>
+<a name="conclusion" class="anchor" href="#conclusion"><span class="octicon octicon-link"></span></a>Conclusion</h1>
+
+<p>This was not only my first Arduino hack, but my first hack at all. I learned a lot of stuff and made a lot of mistakes I want to sum up here:</p>
+
+<ul>
+<li>Think about the design first: I've chosen the rack since I wanted to have a small radio. Also, I knew that I don't have the room for building a box on my own, but the rack was a poor choice. 
+I didn't think much about the space the components gonna use. The speaker chambers are not sawed cleanly (bad English?), the one for the LCD too. So I'm not that happy with the visual result after all.</li>
+<li>The circuit board layout: Ok, this was the first time I build a circuit board. So next time I'm gonna think more about board layout before I start wiring.</li>
+<li>Station selection: Meanwhile, I know how to use a rotary encoder and would prefer this component for station selection instead of using two buttons.</li>
+<li>Choosing a router as wifi client: I wouldn't recommend to hack a router like this only to have a wifi client. The price of a <strong>Raspberry Pi</strong> is almost the same like for the router, but 
+you get more power and an easier setup. I finished a second radio <a href="http://syd711.github.io/mephisto_ii/">Mephisto II</a> some month after this one and the power of the Raspi allowed me to provide a nice
+web UI too. </li>
+</ul>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
